@@ -1,0 +1,1 @@
+ILTASANOMAT = "https://www.is.fi/api/laneitems/79/list"

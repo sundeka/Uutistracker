@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "uutistracker"
+version = "0.1.0"
+description = "A simple CLI application that provides real-time news updates from major Finnish news outlets."
+authors = ["Kalle Sundell"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pytest = "^8.2.2"
+requests = "^2.32.3"
+pytest-mock = "^3.14.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
