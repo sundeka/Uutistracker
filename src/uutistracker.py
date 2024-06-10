@@ -11,13 +11,12 @@ class Uutistracker:
 
     def start(self):
         while True:
-            self.refresh()
-            new_headlines = self.check_for_new()
+            self.update_feed()
+            new_headlines = self.check_new_headlines()
             if new_headlines:
                 new_headlines = self.sort(new_headlines)
             self.sort(self.feed_current)
             try:
-                # Keep feed size at 10 at most at all times
                 self.feed_current = self.feed_current[:10]
             except IndexError:
                 pass
@@ -25,12 +24,12 @@ class Uutistracker:
             self.print(new_headlines)
             self.wait()
 
-    def refresh(self):
+    def update_feed(self):
         for outlet in [self.iltasanomat]:
             articles = outlet.get_articles()
-            self.feed_current.append(articles)
+            self.feed_current.extend(articles)
 
-    def check_for_new(self):
+    def check_new_headlines(self):
         if not self.feed_previous:
             return self.feed_current # First run, all headlines are new
         new_headlines = []
@@ -44,7 +43,7 @@ class Uutistracker:
         for idx in range(1, len(arr)):
             curr = arr[idx]
             j = idx-1
-            while j>=0 and arr[j].time > curr.time:
+            while j>=0 and arr[j].time < curr.time:
                 arr[j+1] = arr[j]
                 j-=1
             arr[j+1] = curr

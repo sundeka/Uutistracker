@@ -12,19 +12,25 @@ class Iltasanomat(FeedHandler):
     def get_articles(self) -> List[APIResponse]:
         articles = []
         try:
-            r = requests.get(ILTASANOMAT, timeout=10)
+            data = self.fetch()
         except TimeoutError:
             self.logger.error("Request timed out!")
             return articles
-        try:
-            data = r.json()
-            for entry in data:
+        except ValueError as e:
+            self.logger.error(e)
+            return articles
+        for entry in data:
+            try:
                 parsed = self.parse(entry)
                 articles.append(parsed)
-        except ValueError:
-            self.logger.error("Unable to parse JSON data!")
+            except TypeError as e:
+                self.logger.error(e)
         return articles
 
+    def fetch(self) -> List[dict]:
+        r = requests.get(ILTASANOMAT, timeout=10)
+        return r.json()
+    
     def parse(self, entry) -> APIResponse:
         source = "Ilta-Sanomat"
         title = entry["title"]

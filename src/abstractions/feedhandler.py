@@ -6,4 +6,5 @@ class FeedHandler:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
     def get_articles() -> List[APIResponse]: pass
+    def fetch() -> List[dict]: pass
     def parse() -> APIResponse: pass
