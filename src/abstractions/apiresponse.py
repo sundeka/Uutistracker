@@ -8,3 +8,6 @@ class APIResponse:
 
     def __str__(self) -> str:
         return f"{(self.source.upper())} ({self.time.hour}:{self.time.minute}): {self.title}"
+    
+    def __eq__(self, other):
+        return self.title == other.title
