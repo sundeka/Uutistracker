@@ -2,10 +2,10 @@ import requests
 from typing import List
 from ..abstractions.feedhandler import FeedHandler
 from ..abstractions.apiresponse import APIResponse
-from ..endpoints import ILTASANOMAT
+from ..endpoints import STT
 from datetime import datetime
 
-class Iltasanomat(FeedHandler):
+class Stt(FeedHandler):
     def __init__(self):
         super().__init__()
 
@@ -28,13 +28,13 @@ class Iltasanomat(FeedHandler):
         return articles
 
     def fetch(self) -> List[dict]:
-        r = requests.get(ILTASANOMAT, timeout=10)
+        r = requests.get(STT, timeout=10)
         return r.json()
     
     def parse(self, entry) -> APIResponse:
-        source = "Ilta-Sanomat"
-        id = entry["id"]
-        title = entry["title"]
-        time_str = entry["displayDate"]
+        source = "STT"
+        time_str = entry["docdate"]
+        id = int(datetime.fromisoformat(time_str).timestamp())
+        title = entry["headline"]  
         time = datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S.%f%z")
         return APIResponse(id, source, title, time)

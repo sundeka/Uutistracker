@@ -1,4 +1,5 @@
 from src.implementations.iltasanomat import Iltasanomat
+from src.implementations.stt import Stt
 from typing import List
 from src.abstractions.apiresponse import APIResponse
 import time
@@ -8,6 +9,7 @@ import itertools
 class Uutistracker:
     def __init__(self):
         self.iltasanomat = Iltasanomat()
+        self.stt = Stt()
 
     def start(self):
         previous_headlines = []
@@ -23,7 +25,7 @@ class Uutistracker:
     def generate_queue(self) -> List[APIResponse]:
         """Forms an unsorted queue from all news outlets."""
         q = []
-        for outlet in [self.iltasanomat]:
+        for outlet in [self.iltasanomat, self.stt]:
             articles = outlet.get_articles()
             q.extend(articles)
         return q
