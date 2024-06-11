@@ -10,7 +10,8 @@ from colorama import Back
 from datetime import datetime
 
 class Uutistracker:
-    def __init__(self):
+    def __init__(self, debug: bool):
+        self.debug = debug
         self.iltasanomat = Iltasanomat()
         self.stt = Stt()
         self.iltalehti = Iltalehti()
