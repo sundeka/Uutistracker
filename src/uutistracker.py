@@ -1,17 +1,20 @@
 from src.implementations.iltasanomat import Iltasanomat
 from src.implementations.stt import Stt
 from src.implementations.iltalehti import Iltalehti
+from src.implementations.hs import Helsinginsanomat
 from typing import List
 from src.abstractions.apiresponse import APIResponse
 import time
 import itertools
 from colorama import Back
+from datetime import datetime
 
 class Uutistracker:
     def __init__(self):
         self.iltasanomat = Iltasanomat()
         self.stt = Stt()
         self.iltalehti = Iltalehti()
+        self.helsinginsanomat = Helsinginsanomat()
 
     def start(self):
         previous_headlines = []
@@ -27,7 +30,7 @@ class Uutistracker:
     def generate_queue(self) -> List[APIResponse]:
         """Forms an unsorted queue from all news outlets."""
         q = []
-        for outlet in [self.iltasanomat, self.stt, self.iltalehti]:
+        for outlet in [self.iltasanomat, self.stt, self.iltalehti, self.helsinginsanomat]:
             articles = outlet.get_articles()
             q.extend(articles)
         return q
@@ -53,8 +56,14 @@ class Uutistracker:
     def check_new_headlines(self, new: List[APIResponse], old: List[APIResponse]) -> List[APIResponse]:
         new_headlines = []
         old_headline_ids = [headline.id for headline in old]
+        old_headline_titles = [headline.title for headline in old]
         for new_headline in new:
             if new_headline.id not in old_headline_ids:
+                # If id is new -> new headline altogether
+                new_headlines.append(new_headline)
+            elif new_headline.title not in old_headline_titles:
+                # Headline with same id exists, but title is updated -> treat as a new headline with updated timestamp
+                new_headline.time = datetime.now()
                 new_headlines.append(new_headline)
         return new_headlines
 
@@ -75,6 +84,8 @@ class Uutistracker:
                         c = Back.YELLOW
                     case "STT":
                         c = Back.WHITE
+                    case "HS":
+                        c = Back.BLUE
                 print(c + headline.source, end="")
                 c = Back.RESET
                 print(c + " " + headline.title)
