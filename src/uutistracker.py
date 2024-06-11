@@ -21,7 +21,7 @@ class Uutistracker:
             chopped_queue = self.chop_queue(sorted_queue)
             new_headlines = self.check_new_headlines(chopped_queue, previous_headlines)
             self.print(new_headlines)
-            previous_headlines = chopped_queue
+            previous_headlines.extend(new_headlines)
             self.wait()
 
     def generate_queue(self) -> List[APIResponse]:
@@ -52,8 +52,9 @@ class Uutistracker:
     
     def check_new_headlines(self, new: List[APIResponse], old: List[APIResponse]) -> List[APIResponse]:
         new_headlines = []
+        old_headline_ids = [headline.id for headline in old]
         for new_headline in new:
-            if new_headline not in old:
+            if new_headline.id not in old_headline_ids:
                 new_headlines.append(new_headline)
         return new_headlines
 
@@ -79,10 +80,12 @@ class Uutistracker:
                 print(c + " " + headline.title)
 
     def wait(self):
-        t = 100
-        for c in itertools.cycle(['|', '/', '-', '\\']):
+        t = 60
+        for c in itertools.cycle(['.', '..', '...', '...', '....', '.....']):
             if t==0:
                 break
-            print(f"Waiting for new headlines... {c}", end="\r")
+            print(c, end="\r")
+            import sys
+            sys.stdout.write("\033[K")
             time.sleep(0.5)
             t-=1
