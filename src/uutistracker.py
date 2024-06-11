@@ -57,15 +57,13 @@ class Uutistracker:
 
     def print(self, new_headlines: List[APIResponse]):
         for headline in new_headlines:
-            sys.stdout.flush()
-            print(str(headline)+"\n")
+            print(headline)
 
     def wait(self):
         t = 100
         for c in itertools.cycle(['|', '/', '-', '\\']):
             if t==0:
                 break
-            sys.stdout.write('\rWaiting for new headlines... ' + c)
-            sys.stdout.flush()
+            print(f"Waiting for new headlines... {c}", end="\r")
             time.sleep(0.5)
             t-=1
