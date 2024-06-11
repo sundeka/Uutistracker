@@ -32,7 +32,7 @@ class Iltasanomat(FeedHandler):
         return r.json()
     
     def parse(self, entry) -> APIResponse:
-        source = "Ilta-Sanomat"
+        source = "IS"
         id = entry["id"]
         title = entry["title"]
         time_str = entry["displayDate"]

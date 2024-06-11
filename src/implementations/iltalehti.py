@@ -32,7 +32,7 @@ class Iltalehti(FeedHandler):
         return r.json()["response"]
     
     def parse(self, entry) -> APIResponse:
-        source = "Iltalehti"
+        source = "IL"
         id = entry["article_id"]
         title = entry["headline"]  
         time_str = entry["published_at"]
