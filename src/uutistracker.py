@@ -5,7 +5,7 @@ from typing import List
 from src.abstractions.apiresponse import APIResponse
 import time
 import itertools
-from colorama import Fore
+from colorama import Back
 
 class Uutistracker:
     def __init__(self):
@@ -61,22 +61,22 @@ class Uutistracker:
         """(<time>) <AGENCY NAME>: <headline>"""
         for headline in new_headlines:
             if "juuri nyt" in headline.title.lower():
-                c = Fore.RED
-                print(c + f"({str(headline.time.hour).zfill(2)}:{str(headline.time.minute).zfill(2)}) {(headline.source.upper())}: {headline.title}")
-                c = Fore.RESET
+                c = Back.RED
+                print(c + f"({str(headline.time.hour).zfill(2)}:{str(headline.time.minute).zfill(2)}) {(headline.source)}: {headline.title}")
+                c = Back.RESET
             else:
-                c = Fore.RESET
+                c = Back.RESET
                 print(c + f"({str(headline.time.hour).zfill(2)}:{str(headline.time.minute).zfill(2)})", end=" ")
                 match headline.source:
-                    case "Iltalehti":
-                        c = Fore.LIGHTRED_EX
-                    case "Ilta-Sanomat":
-                        c = Fore.YELLOW
+                    case "IL":
+                        c = Back.LIGHTRED_EX
+                    case "IS":
+                        c = Back.YELLOW
                     case "STT":
-                        c = Fore.WHITE
-                print(c + headline.source.upper(), end=" ")
-                c = Fore.RESET
-                print(c + headline.title)
+                        c = Back.WHITE
+                print(c + headline.source, end="")
+                c = Back.RESET
+                print(c + " " + headline.title)
 
     def wait(self):
         t = 100
