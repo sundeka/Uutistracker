@@ -9,10 +9,6 @@ class APIResponse:
         self.source = source
         self.title = title
         self.time = time
-
-    def __str__(self) -> str:
-        """(<time>) <AGENCY NAME>: <headline>"""
-        return f"({str(self.time.hour).zfill(2)}:{str(self.time.minute).zfill(2)}) {(self.source.upper())}: {self.title}"
     
     def __eq__(self, other):
         """Use ID for checking equality between APIResponse objects.
