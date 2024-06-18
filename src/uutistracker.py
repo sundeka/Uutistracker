@@ -10,7 +10,7 @@ from colorama import Back
 from datetime import datetime
 
 class Uutistracker:
-    def __init__(self, debug: bool):
+    def __init__(self, debug: bool = False):
         self.debug = debug
         self.iltasanomat = Iltasanomat()
         self.stt = Stt()
@@ -70,10 +70,11 @@ class Uutistracker:
 
     def print(self, new_headlines: List[APIResponse]):
         """(<time>) <AGENCY NAME>: <headline>"""
+        highlightables = ["IL:", "HS:", "IS:", "Yle:", "media:", "tiedetään nyt", "on kuollut"]
         for headline in new_headlines:
-            if "juuri nyt" in headline.title.lower():
+            if any(keyword in headline.title.lower() for keyword in highlightables):
                 c = Back.RED
-                print(c + f"({str(headline.time.hour).zfill(2)}:{str(headline.time.minute).zfill(2)}) {(headline.source)}: {headline.title}")
+                print(c + f"({str(headline.time.hour).zfill(2)}:{str(headline.time.minute).zfill(2)}) {(headline.source)} {headline.title}")
                 c = Back.RESET
             else:
                 c = Back.RESET
