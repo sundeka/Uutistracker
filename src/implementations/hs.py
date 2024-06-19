@@ -5,7 +5,7 @@ from typing import List
 from ..abstractions.feedhandler import FeedHandler
 from ..abstractions.apiresponse import APIResponse
 from ..endpoints import HS
-from datetime import datetime, timezone
+from datetime import datetime
 
 class Helsinginsanomat(FeedHandler):
     def __init__(self):
@@ -49,10 +49,10 @@ class Helsinginsanomat(FeedHandler):
     def parse(self, entry) -> APIResponse:
         source = "HS"
         id = entry["id"]
-        title = entry["headline"]  
+        title = entry["headline"].replace("\xad", "")
         time_str = entry["time"]
         now = datetime.now()
-        time = datetime(now.year, now.month, now.day, int(time_str[0]), int(time_str[1]), 0, tzinfo=timezone.utc)
+        time = datetime(now.year, now.month, now.day, int(time_str[0]), int(time_str[1]), 0)
         return APIResponse(id, source, title, time)
     
     def _clean_headline(self, text: str):

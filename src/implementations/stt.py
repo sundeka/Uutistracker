@@ -35,6 +35,7 @@ class Stt(FeedHandler):
         source = "STT"
         time_str = entry["docdate"]
         id = int(datetime.fromisoformat(time_str).timestamp())
-        title = entry["headline"]  
+        title = entry["headline"].replace("\xad", "") 
         time = datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S.%f%z")
+        time = time.replace(tzinfo=None)
         return APIResponse(id, source, title, time)

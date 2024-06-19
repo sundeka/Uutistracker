@@ -34,7 +34,8 @@ class Iltalehti(FeedHandler):
     def parse(self, entry) -> APIResponse:
         source = "IL"
         id = entry["article_id"]
-        title = entry["headline"]  
+        title = entry["headline"].replace("\xad", "")
         time_str = entry["published_at"]
         time = datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S%z")
+        time = time.replace(tzinfo=None)
         return APIResponse(id, source, title, time)

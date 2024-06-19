@@ -34,7 +34,8 @@ class Iltasanomat(FeedHandler):
     def parse(self, entry) -> APIResponse:
         source = "IS"
         id = entry["id"]
-        title = entry["title"]
+        title = entry["title"].replace("\xad", "")
         time_str = entry["displayDate"]
         time = datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S.%f%z")
+        time = time.replace(tzinfo=None)
         return APIResponse(id, source, title, time)
