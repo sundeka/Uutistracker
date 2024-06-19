@@ -2,6 +2,7 @@ from src.implementations.iltasanomat import Iltasanomat
 from src.implementations.stt import Stt
 from src.implementations.iltalehti import Iltalehti
 from src.implementations.hs import Helsinginsanomat
+from src.implementations.yle import Yle
 from typing import List
 from src.abstractions.apiresponse import APIResponse
 import time
@@ -16,6 +17,7 @@ class Uutistracker:
         self.stt = Stt()
         self.iltalehti = Iltalehti()
         self.helsinginsanomat = Helsinginsanomat()
+        self.yle = Yle()
 
     def start(self):
         previous_headlines = []
@@ -31,7 +33,7 @@ class Uutistracker:
     def generate_queue(self) -> List[APIResponse]:
         """Forms an unsorted queue from all news outlets."""
         q = []
-        for outlet in [self.iltasanomat, self.stt, self.iltalehti, self.helsinginsanomat]:
+        for outlet in [self.iltasanomat, self.stt, self.iltalehti, self.helsinginsanomat, self.yle]:
             articles = outlet.get_articles()
             q.extend(articles)
         return q
@@ -45,6 +47,9 @@ class Uutistracker:
                 q[j+1] = q[j]
                 j-=1
             q[j+1] = curr
+        if self.debug:
+            for article in q:
+                print(article.source + ": " + "(" + str(article.time) + ") " + article.title)
         return q
     
     def chop_queue(self, q: List[APIResponse]):
@@ -88,6 +93,8 @@ class Uutistracker:
                         c = Back.WHITE
                     case "HS":
                         c = Back.BLUE
+                    case "YLE":
+                        c = Back.MAGENTA
                 print(c + headline.source, end="")
                 c = Back.RESET
                 print(c + " " + headline.title)
