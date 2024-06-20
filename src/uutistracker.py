@@ -7,6 +7,7 @@ from typing import List
 from src.abstractions.apiresponse import APIResponse
 import time
 import itertools
+import sys
 from colorama import Back
 from datetime import datetime
 
@@ -105,7 +106,6 @@ class Uutistracker:
             if t==0:
                 break
             print(c, end="\r")
-            import sys
             sys.stdout.write("\033[K")
             time.sleep(0.5)
             t-=1
