@@ -1,11 +1,11 @@
 import requests
 from typing import List
-from ..abstractions.feedhandler import FeedHandler
+from ..abstractions.resthandler import RestHandler
 from ..abstractions.apiresponse import APIResponse
 from ..endpoints import ILTASANOMAT
 from datetime import datetime
 
-class Iltasanomat(FeedHandler):
+class Iltasanomat(RestHandler):
     def __init__(self):
         super().__init__()
 

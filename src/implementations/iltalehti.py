@@ -1,11 +1,11 @@
 import requests
 from typing import List
-from ..abstractions.feedhandler import FeedHandler
+from ..abstractions.resthandler import RestHandler
 from ..abstractions.apiresponse import APIResponse
 from ..endpoints import ILTALEHTI
 from datetime import datetime
 
-class Iltalehti(FeedHandler):
+class Iltalehti(RestHandler):
     def __init__(self):
         super().__init__()
 

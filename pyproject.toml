@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "uutistracker"
-version = "1.0.5"
+version = "2.0.0"
 description = "A simple CLI application that provides real-time news updates from major Finnish news outlets."
 authors = ["Kalle Sundell"]
 

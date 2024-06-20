@@ -1,55 +1,47 @@
 import requests
 import re
 from lxml import html
-from typing import List
-from ..abstractions.feedhandler import FeedHandler
+from typing import List, Iterable
+from ..abstractions.scraperhandler import ScraperHandler
 from ..abstractions.apiresponse import APIResponse
 from ..endpoints import YLE
 from datetime import datetime
 
-class Yle(FeedHandler):
+class Yle(ScraperHandler):
     def __init__(self):
         super().__init__()
 
     def get_articles(self) -> List[APIResponse]:
         articles = []
-        try:
-            data = self.fetch()
-        except TimeoutError:
-            self.logger.error("Request timed out!")
-            return articles
-        except ValueError as e:
-            self.logger.error(e)
-            return articles
-        for entry in data:
-            try:
-                parsed = self.parse(entry)
-                articles.append(parsed)
-            except TypeError as e:
-                self.logger.error(e)
+        html_tree = self.get_html_tree()
+        for block in self.get_news_blocks(html_tree):
+            id = block.text_content()
+            headline = self.parse_headline(block)
+            time = self.parse_time(block)
+            articles.append(APIResponse(
+                id,
+                "YLE",
+                headline,
+                time
+            ))
         return articles
 
-    def fetch(self) -> List[dict]:
+    def get_html_tree(self) -> html.HtmlElement:
         r = requests.get(YLE, timeout=10)
         content_str = r.content.decode("utf-8")
-        html_tree = html.fromstring(content_str)
-        news_blocks = html_tree.xpath("//time/../..")
-        raw_headlines = []
-        for block in news_blocks:
-            props = {}
-            props["id"] = block.text_content()
-            props["headline"] = block.getchildren()[0].text_content()
-            props["time"] = self._parse_time(block.getchildren()[1].text_content())
-            raw_headlines.append(props)
-        return raw_headlines
+        return html.fromstring(content_str)
     
-    def parse(self, entry) -> APIResponse:
-        time_str = entry["time"].split(":")
-        now = datetime.now()
-        time = datetime(now.year, now.month, now.day, int(time_str[0]), int(time_str[1]), 0)
-        return APIResponse(entry["id"], "YLE", entry["headline"].replace("\xad", ""), time)
+    def get_news_blocks(self, html_tree: html.HtmlElement) -> Iterable[html.HtmlElement]:
+        return html_tree.xpath("//time/../..")
+    
+    def parse_headline(self, block: html.HtmlElement) -> str:
+        return block.getchildren()[0].text_content().replace("\xad", "")
 
-    def _parse_time(self, input_string: str):
+    def parse_time(self, block: html.HtmlElement) -> datetime:
+        time = datetime.now()
         time_pattern = r'(\d{1,2}:\d{2})'
-        time_match = re.search(time_pattern, input_string)
-        return time_match.group(1)
+        time_match = re.search(time_pattern, block.getchildren()[1].text_content())
+        if time_match:
+            time_str = time_match.group(1)
+            time = datetime(time.year, time.month, time.day, int(time_str.split(":")[0]), int(time_str.split(":")[1]), 0)
+        return time

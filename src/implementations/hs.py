@@ -1,71 +1,64 @@
 import requests
 import re
 from lxml import html
-from typing import List
-from ..abstractions.feedhandler import FeedHandler
+from typing import List, Iterable
+from ..abstractions.scraperhandler import ScraperHandler
 from ..abstractions.apiresponse import APIResponse
+from ..exceptions.expectedfaultyheadline import ExpectedFaultyHeadlineException
 from ..endpoints import HS
 from datetime import datetime
 
-class Helsinginsanomat(FeedHandler):
+class Helsinginsanomat(ScraperHandler):
     def __init__(self):
         super().__init__()
 
     def get_articles(self) -> List[APIResponse]:
         articles = []
-        try:
-            data = self.fetch()
-        except TimeoutError:
-            self.logger.error("Request timed out!")
-            return articles
-        except ValueError as e:
-            self.logger.error(e)
-            return articles
-        for entry in data:
+        html_tree = self.get_html_tree()
+        for block in self.get_news_blocks(html_tree):
+            id = block.text_content()
             try:
-                parsed = self.parse(entry)
-                articles.append(parsed)
-            except TypeError as e:
-                self.logger.error(e)
+                headline = self.parse_headline(block)
+            except ExpectedFaultyHeadlineException:
+                continue
+            time = self.parse_time(block)
+            articles.append(APIResponse(
+                id,
+                "HS",
+                headline,
+                time
+            ))
         return articles
 
-    def fetch(self) -> List[dict]:
+    def get_html_tree(self) -> html.HtmlElement:
         r = requests.get(HS, timeout=10)
         content_str = r.content.decode("utf-8")
-        html_tree = html.fromstring(content_str)
-        news_blocks = html_tree.xpath("//a[@class='block' and starts-with(@href, '/')]")
-        raw_headlines = []
-        for block in news_blocks:
-            props = {}
-            props["id"] = block.attrib["href"]
-            headline, time = self._clean_headline(block.text_content())
-            if not all([headline, time]):
-                continue
-            props["headline"] = headline
-            props["time"] = time
-            raw_headlines.append(props)
-        return raw_headlines
+        return html.fromstring(content_str)
     
-    def parse(self, entry) -> APIResponse:
-        source = "HS"
-        id = entry["id"]
-        title = entry["headline"].replace("\xad", "")
-        time_str = entry["time"]
-        now = datetime.now()
-        time = datetime(now.year, now.month, now.day, int(time_str[0]), int(time_str[1]), 0)
-        return APIResponse(id, source, title, time)
+    def get_news_blocks(self, html_tree: html.HtmlElement) -> Iterable[html.HtmlElement]:
+        return html_tree.xpath("//a[@class='block' and starts-with(@href, '/')]")
     
-    def _clean_headline(self, text: str):
+    def parse_headline(self, block: html.HtmlElement) -> str:
+        text = block.text_content()
         headline = ""
-        time = []
         # Remove everything before the pipe (|) including the pipe
         text = re.sub(r'^.*\|', '', text)    
         text = text.replace('Tilaajille', '')
         # Separate the headline from the time
         match = re.search(r'(\d{1,2}:\d{2})$', text)
         if match:
-            time = match.group(0).split(":")
             headline = text[:match.start()].strip()
-        elif "uutisvinkki" not in text:
+        elif "uutisvinkki" in text:
+            raise ExpectedFaultyHeadlineException()
+        else:
             self.logger.exception(f"No match: {text}")
-        return headline, time
+        return headline.replace("\xad", "")
+
+    def parse_time(self, block: html.HtmlElement) -> datetime:
+        time = datetime.now()
+        text = block.text_content()
+        match = re.search(r'(\d{1,2}:\d{2})$', text)
+        if match:
+            time_str = match.group(0)
+            time = datetime(time.year, time.month, time.day, int(time_str.split(":")[0]), int(time_str.split(":")[1]), 0)
+        return time
