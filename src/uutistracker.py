@@ -80,8 +80,9 @@ class Uutistracker:
         for headline in new_headlines:
             if any(keyword in headline.title.lower() for keyword in highlightables):
                 c = Back.RED
-                print(c + f"({str(headline.time.hour).zfill(2)}:{str(headline.time.minute).zfill(2)}) {(headline.source)} {headline.title}")
+                print(c + f"({str(headline.time.hour).zfill(2)}:{str(headline.time.minute).zfill(2)}) {(headline.source)} {headline.title}", end="")
                 c = Back.RESET
+                print(c + "") # Hack solution for preventing the red background from "bleeding" in to the following row
             else:
                 c = Back.RESET
                 print(c + f"({str(headline.time.hour).zfill(2)}:{str(headline.time.minute).zfill(2)})", end=" ")
