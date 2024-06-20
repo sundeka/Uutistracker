@@ -38,7 +38,8 @@ class Yle(FeedHandler):
         for block in news_blocks:
             props = {}
             props["id"] = block.text_content()
-            props["headline"], props["time"] = self._clean_headline(block.text_content())
+            props["headline"] = block.getchildren()[0].text_content()
+            props["time"] = self._parse_time(block.getchildren()[1].text_content())
             raw_headlines.append(props)
         return raw_headlines
     
@@ -48,9 +49,7 @@ class Yle(FeedHandler):
         time = datetime(now.year, now.month, now.day, int(time_str[0]), int(time_str[1]), 0)
         return APIResponse(entry["id"], "YLE", entry["headline"].replace("\xad", ""), time)
 
-    def _clean_headline(self, input_string: str):
+    def _parse_time(self, input_string: str):
         time_pattern = r'(\d{1,2}:\d{2})'
         time_match = re.search(time_pattern, input_string)
-        time = time_match.group(1)
-        headline = input_string[:time_match.start()].strip()
-        return headline, time
+        return time_match.group(1)
