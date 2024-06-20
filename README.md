@@ -3,5 +3,11 @@ Uutistracker is a lightweight CLI application that tracks the news feeds of most
 
 ![Demonstration of Uutistracker](misc/tracker.png)
 
+## How it works
+Coming soon.
+
 ## Installation
+Coming soon.
+
+## Usage
 Coming soon.
