@@ -7,6 +7,7 @@ from typing import List
 from src.abstractions.apiresponse import APIResponse
 import time
 import itertools
+import sys
 from colorama import Back
 from datetime import datetime
 
@@ -79,8 +80,9 @@ class Uutistracker:
         for headline in new_headlines:
             if any(keyword in headline.title.lower() for keyword in highlightables):
                 c = Back.RED
-                print(c + f"({str(headline.time.hour).zfill(2)}:{str(headline.time.minute).zfill(2)}) {(headline.source)} {headline.title}")
+                print(c + f"({str(headline.time.hour).zfill(2)}:{str(headline.time.minute).zfill(2)}) {(headline.source)} {headline.title}", end="")
                 c = Back.RESET
+                print(c + "") # Hack solution for preventing the red background from "bleeding" in to the following row
             else:
                 c = Back.RESET
                 print(c + f"({str(headline.time.hour).zfill(2)}:{str(headline.time.minute).zfill(2)})", end=" ")
@@ -105,7 +107,6 @@ class Uutistracker:
             if t==0:
                 break
             print(c, end="\r")
-            import sys
             sys.stdout.write("\033[K")
             time.sleep(0.5)
             t-=1
