@@ -1,10 +1,11 @@
 from datetime import datetime
+from typing import Any
 
 """
 A uniform structure that represents a single headline received from the API.
 """
 class APIResponse:
-    def __init__(self, id: int, source: str, title: str, time: datetime):
+    def __init__(self, id: Any, source: str, title: str, time: datetime):
         self.id = id
         self.source = source
         self.title = title
